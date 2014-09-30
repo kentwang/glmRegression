@@ -1,8 +1,50 @@
 %- TODO: - add canonical option
 %-       - add statistical inference
+%-       - add likelihood function or S(beta)
 
-function beta = IRWLS(X, y, n, family, epsilon)
-	beta = 1;
-	if strcmp(family, "binomial")
-		disp(1);
-	endif
+% function beta = IRWLS(X, y, n, family, epsilon)
+	% beta = 1;
+	% if strcmp(family, "binomial")
+		% disp(1);
+	% endif
+
+data = csvread("HW3.csv");
+X = [ones(size(data)(1), 1), data(:, 1:3)];
+y = data(:, 4);
+	
+epsilon = 10^-6;
+beta_old = 10000 * ones(size(X)(2), 1);
+beta_new = OLS(X, y); % Initial value of beta
+beta_new = [1; 0; 0; 0];
+alpha = 0.5;
+iter = 0;
+
+%- Save the beta iterations to file
+if exist("beta_negBino.txt")
+	delete "beta_negBino.txt";
+endif
+
+fbeta_id = fopen("beta_negBino.txt", "a");
+while(sum(abs(beta_new - beta_old)) / sum(abs(beta_old)) > epsilon)
+	iter += 1;
+	eta = X * beta_new;
+  %	mu = inv_link_negBino(eta, alpha);
+  mu = exp(eta); % use the non-canonical link function for computation instead of the canonical
+	V = diag(var_negBino(mu, alpha));
+	beta_old = beta_new;
+	beta_new = inverse(X' * V * X) * X' * V * (eta .+ (y .- mu) .* diag(inverse(V))); % pay attention to this
+  deviance = -2 * loglik_negBino(mu, y, alpha); 
+  fprintf(fbeta_id, '%f, %f, %f, %f, %f\n', [beta_new; deviance]);
+endwhile
+fclose(fbeta_id);
+
+M = dlmread("beta_negBino.txt");
+
+subplot(3, 2, 1); plot(M(:, 1)); title('\beta_0'); xlabel("Iteration");
+subplot(3, 2, 2); plot(M(:, 2)); title('\beta_1'); xlabel("Iteration");
+subplot(3, 2, 3); plot(M(:, 3)); title('\beta_2'); xlabel("Iteration");
+subplot(3, 2, 4); plot(M(:, 4)); title('\beta_3'); xlabel("Iteration");
+subplot(3, 2, 5:6); plot(M(:, 5)); title('Deviance: \lambda(\beta)'); xlabel("Iteration");
+suptitle("NB regression convergence using OLS as starting value for IRWLS");
+
+
