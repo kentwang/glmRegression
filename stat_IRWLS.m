@@ -10,7 +10,10 @@ function beta_new = stat_IRWLS(X, y, family, n = 0, alpha = 0, epsilon = 10^-6, 
   endif  
   if ~exist("family", "var")
     disp("Model family missing! Family can be one of the following:");
-    disp(["Bernoulli, ", "negBino, ", "Poisson"]);
+    disp(["Bernoulli, ", "Binomial", "negBino, ", "Poisson"]);
+    return;
+  elseif strcmp(family, "Binomial") && n == 0
+    disp("n is not given for Binomial regression!");
     return;
   endif
   
