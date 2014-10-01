@@ -11,7 +11,8 @@
 data = csvread("HW3.csv");
 X = [ones(size(data)(1), 1), data(:, 1:3)];
 y = data(:, 4);
-	
+
+%- Initialization and conditions	
 epsilon = 10^-6;
 beta_old = 10000 * ones(size(X)(2), 1);
 beta_new = OLS(X, y); % Initial value of beta
@@ -19,12 +20,12 @@ beta_new = [1; 0; 0; 0];
 alpha = 0.5;
 iter = 0;
 
-%- Save the beta iterations to file
-if exist("beta_negBino.txt")
-	delete "beta_negBino.txt";
+%- Check existance of log files 
+if exist("beta_sbata_negBino.hist")
+	delete "beta_sbata_negBino.hist";
 endif
 
-fbeta_id = fopen("beta_negBino.txt", "a");
+fbeta_id = fopen("beta_sbata_negBino.hist", "a");
 while(sum(abs(beta_new - beta_old)) / sum(abs(beta_old)) > epsilon)
 	iter += 1;
 	eta = X * beta_new;
@@ -38,7 +39,7 @@ while(sum(abs(beta_new - beta_old)) / sum(abs(beta_old)) > epsilon)
 endwhile
 fclose(fbeta_id);
 
-M = dlmread("beta_negBino.txt");
+M = dlmread("beta_sbata_negBino.hist");
 
 subplot(3, 2, 1); plot(M(:, 1)); title('\beta_0'); xlabel("Iteration");
 subplot(3, 2, 2); plot(M(:, 2)); title('\beta_1'); xlabel("Iteration");

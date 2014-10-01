@@ -1,0 +1,1 @@
+exist("beta_sbata_negBino.hist")
