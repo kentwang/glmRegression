@@ -1,1 +1,3 @@
-exist("beta_sbata_negBino.hist")
+function a = temp(a = "hello", b = "my")
+  disp(a);
+  disp(b);
