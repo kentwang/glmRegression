@@ -21,11 +21,11 @@ alpha = 0.5;
 iter = 0;
 
 %- Check existance of log files 
-if exist("beta_sbata_negBino.hist")
-	delete "beta_sbata_negBino.hist";
+if exist("beta_sbeta_negBino.hist")
+	delete "beta_sbeta_negBino.hist";
 endif
 
-fbeta_id = fopen("beta_sbata_negBino.hist", "a");
+fbeta_id = fopen("beta_sbeta_negBino.hist", "a");
 while(sum(abs(beta_new - beta_old)) / sum(abs(beta_old)) > epsilon)
 	iter += 1;
 	eta = X * beta_new;
@@ -39,7 +39,7 @@ while(sum(abs(beta_new - beta_old)) / sum(abs(beta_old)) > epsilon)
 endwhile
 fclose(fbeta_id);
 
-M = dlmread("beta_sbata_negBino.hist");
+M = dlmread("beta_sbeta_negBino.hist");
 
 subplot(3, 2, 1); plot(M(:, 1)); title('\beta_0'); xlabel("Iteration");
 subplot(3, 2, 2); plot(M(:, 2)); title('\beta_1'); xlabel("Iteration");
