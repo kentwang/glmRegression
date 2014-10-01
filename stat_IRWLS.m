@@ -3,9 +3,21 @@
 %- Add statistical inference functionalities
 
 function beta_new = stat_IRWLS(X, y, family, n = 0, alpha = 0, epsilon = 10^-6, use_OLS = true)
+  %- Validating arguments
   if size(X)(1) ~= length(y)
     printf("Dimension of X is %d x %d and y is %d\n", [size(X), length(y)]);
+    return;
   endif  
+  if ~exist("family", "var")
+    disp("Model family missing! Family can be one of the following:");
+    disp(["Bernoulli, ", "negBino, ", "Poisson"]);
+    return;
+  endif
+  
+  histfile = strcat(family, ".hist"); % not need to attach beta_sbeta
+  if exist(histfile, "file") % histfile is already a string
+    delete(histfile);
+  endif
   
   %- Initialization and conditions	
   beta_old = 10000 * ones(size(X)(2), 1);
@@ -16,7 +28,4 @@ function beta_new = stat_IRWLS(X, y, family, n = 0, alpha = 0, epsilon = 10^-6, 
   endif
   iter = 0;
   
-  histfile = strcat(family, ".hist"); % not need to attach beta_sbeta
-  if exist(histfile, "file")
-    delete(histfile);
-  endif
+  
