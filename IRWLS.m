@@ -28,6 +28,7 @@ endif
 fbeta_id = fopen("beta_sbeta_negBino.hist", "a");
 while(sum(abs(beta_new - beta_old)) / sum(abs(beta_old)) > epsilon)
 	iter += 1;
+  printf("iteration %d\n", iter);
 	eta = X * beta_new;
   %	mu = inv_link_negBino(eta, alpha);
   mu = exp(eta); % use the non-canonical link function for computation instead of the canonical

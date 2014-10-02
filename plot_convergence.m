@@ -1,5 +1,5 @@
 function f = plot_convergence(M)
-  n = size(M)(2)
+  n = size(M)(2);
   ncol_plot = 2;
   nrow_plot = ceil(n / ncol_plot);
   
