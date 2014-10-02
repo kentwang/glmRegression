@@ -1,6 +1,7 @@
 %- TODO:
 %- Add generic function names for link, dlink, var, inv_link, loglik
 %- Add statistical inference functionalities
+%- Change validating arguments RETURN into WARNING
 
 %- Test variables: family = "negBino"; n = 5; alpha = 0.5;
 
@@ -9,10 +10,12 @@ function beta_new = stat_IRWLS(X, y, family, n = 0, alpha = -1, epsilon = 10^-6,
   if size(X)(1) ~= length(y)
     printf("Dimension of X is %d x %d and y is %d\n", [size(X), length(y)]);
     return;
-  endif  
-  if ~exist("family", "var")
+  endif
+
+  family_set = {"Bernoulli", "Binomial", "negBino", "Poisson"};
+  if ~exist("family", "var") || ~ismember(family, family_set)
     disp("Model family missing! Family can be one of the following:");
-    disp(["Bernoulli, ", "Binomial", "negBino, ", "Poisson"]);
+    disp(["Bernoulli, ", "Binomial, ", "negBino, ", "Poisson"]);
     return;
   elseif strcmp(family, "Binomial") && n == 0
     disp("n is not given for Binomial regression!");
@@ -38,8 +41,12 @@ function beta_new = stat_IRWLS(X, y, family, n = 0, alpha = -1, epsilon = 10^-6,
   iter = 0;
   
   %- Generic functions involved in IRWLS for GLM
-  if strcmp(family, "negBino")
-  
+  switch(family)
+  case "negBino"
+    inv_link_fun = @inv_link_negBino;
+    var_fun = @var_negBino;
+    loglik_fun = @loglik_negBino;
+  endswitch  
   
   %- IRWLS iteration
   f_id = fopen(histfile, "a");
@@ -47,12 +54,12 @@ function beta_new = stat_IRWLS(X, y, family, n = 0, alpha = -1, epsilon = 10^-6,
     iter += 1;
 %    printf("Iteration %d\n", iter);
     eta = X * beta_new;
-    mu = inv_link_negBino(eta);
+    mu = inv_link_fun(eta);
 %    mu = exp(eta); % use the non-canonical link function for computation instead of the canonical
-    V = diag(var_negBino(mu, alpha));
+    V = diag(var_fun(mu, alpha));
     beta_old = beta_new;
     beta_new = inverse(X' * V * X) * X' * V * (eta .+ (y .- mu) .* diag(inverse(V))); % pay attention to this
-    deviance = -2 * loglik_negBino(mu, y, alpha); 
+    deviance = -2 * loglik_fun(mu, y, alpha); 
     fprintf(f_id, '%f, %f, %f, %f, %f\n', [deviance; beta_new]);
   endwhile
   fclose(f_id);
