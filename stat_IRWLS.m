@@ -52,6 +52,7 @@ function [beta_new, CI, varBeta, Wald] = stat_IRWLS(X, y, family, n = 0, alpha =
     inv_link_fun = @inv_link_negBino;
     var_fun = @var_negBino;
     loglik_fun = @loglik_negBino;
+    reduced_dev = @reduced_negBino_dev;
   endswitch  
   
   %- IRWLS iteration
@@ -86,8 +87,17 @@ function [beta_new, CI, varBeta, Wald] = stat_IRWLS(X, y, family, n = 0, alpha =
   WaldP = 1 - chi2cdf(WaldStat.^2, 1);
   Wald = [WaldStat, WaldP];
   
-  %- Likelihood ratio test
+  %- Likelihood ratio test. Calculate reduce deviance on each model
+  %- Note simple parameter is test for each iteration and df of LRT is 1
+  %%%%%%%%%%%%%% This is funky for now
+  deviance_reduce = zeros(1, size(X)(2) - 1);
+  for k = 1:(size(X)(2) - 1) % remove the kth feature (not column of X)
+    cols = 2:size(X)(2);
+    cols(k) = [];
+    X_reduce = X(:, cols);
+    deviance_reduce(k) = reduced_dev(X_reduce, y, alpha = alpha);
+  endfor
   
-
+  
 
   
