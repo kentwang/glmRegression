@@ -63,10 +63,17 @@ WaldStat = beta_new ./ seBeta;
 WaldF = chi2inv(1 - alpha_inf, 1);
 WaldP = 1 - chi2cdf(WaldStat.^2, 1);
 
-%- Likelihood ratio test
+%- Likelihood ratio test. Calculate reduce deviance on each model
+deviance_reduce = zeros(1, size(X)(2) - 1);
+for k = 1:(size(X)(2) - 1) % remove the kth feature (not column of X)
+  cols = 2:size(X)(2);
+  cols(k) = [];
+  cols = [1, cols];
+  X_reduce = X(:, cols);
+  deviance_reduce(k) = reduced_negBino_dev(X_reduce, y, alpha = alpha);
+endfor
 
-
-
+%LRTP = 1 - chi2cdf(deviance_reduce - deviance, 1)
 
 
 
