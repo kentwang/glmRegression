@@ -4,6 +4,10 @@
 %- Change validating arguments RETURN into WARNING
 
 %- Test variables: family = "negBino"; n = 5; alpha = 0.5;
+%data = csvread("HW3.csv");
+%X = [ones(size(data)(1), 1), data(:, 1:3)];
+%y = data(:, 4);
+%- Test run: stat_IRWLS(X, y, "negBino", n = 0, alpha = 0.5)
 
 function beta_new = stat_IRWLS(X, y, family, n = 0, alpha = -1, epsilon = 10^-6, use_OLS = false)
   %- Validating arguments
@@ -21,6 +25,7 @@ function beta_new = stat_IRWLS(X, y, family, n = 0, alpha = -1, epsilon = 10^-6,
     disp("n is not given for Binomial regression!");
     return;
   elseif strcmp(family, "negBino") && alpha == -1
+    printf('alpha is %f', alpha);
     disp("alpha is not positive for Negative Binomial regression!");
     return;
   endif
@@ -65,6 +70,6 @@ function beta_new = stat_IRWLS(X, y, family, n = 0, alpha = -1, epsilon = 10^-6,
   fclose(f_id);
   
   %- Convergence plot of coefficients
-  M = dlmread("beta_sbeta_negBino.hist");
+  M = dlmread(histfile);
   plot_convergence(M);
     
