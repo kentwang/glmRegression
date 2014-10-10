@@ -1,6 +1,7 @@
 %- TODO: - add canonical option
 %-       - add statistical inference
 %-       - add likelihood function or S(beta)
+%-       - AIC and BIC maybe added
 
 % function beta = IRWLS(X, y, n, family, epsilon)
 	% beta = 1;
@@ -49,4 +50,4 @@ subplot(3, 2, 4); plot(M(:, 4)); title('\beta_3'); xlabel("Iteration");
 subplot(3, 2, 5:6); plot(M(:, 5)); title('Deviance: \lambda(\beta)'); xlabel("Iteration");
 suptitle("NB regression convergence using OLS as starting value for IRWLS");
 
-
+varBeta = inverse(X' * V * X);
