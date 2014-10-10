@@ -1,40 +1,9 @@
-%- TODO:
-%- Add generic function names for link, dlink, var, inv_link, loglik
-%- Add statistical inference functionalities
-%- Change validating arguments RETURN into WARNING
-%- Reduce model estimation and likihood
-
-%- Test variables: family = "negBino"; n = 5; alpha = 0.5;
-%data = csvread("HW3.csv");
-%X = [ones(size(data)(1), 1), data(:, 1:3)];
-%y = data(:, 4);
-%- Test run: [beta, CI, varBeta, Wald] = stat_IRWLS(X, y, "negBino", n = 0, alpha = 0.5);
-
-function [beta_new, CI, varBeta, Wald] = stat_IRWLS(X, y, family, n = 0, alpha = -1, epsilon = 10^-6, use_OLS = false, alpha_inf = 0.05)
+function [beta_new, deviance] = reduced_negBino(X, y, alpha = -1, epsilon = 10^-6, use_OLS = false)
+  %- Note X is the reduce design matrix
   %- Validating arguments
   if size(X)(1) ~= length(y)
     printf("Dimension of X is %d x %d and y is %d\n", [size(X), length(y)]);
     return;
-  endif
-
-  family_set = {"Bernoulli", "Binomial", "negBino", "Poisson"};
-  if ~exist("family", "var") || ~ismember(family, family_set)
-    disp("Model family missing! Family can be one of the following:");
-    disp(["Bernoulli, ", "Binomial, ", "negBino, ", "Poisson"]);
-    return;
-  elseif strcmp(family, "Binomial") && n == 0
-    disp("n is not given for Binomial regression!");
-    return;
-  elseif strcmp(family, "negBino") && alpha == -1
-    printf('alpha is %f', alpha);
-    disp("alpha is not positive for Negative Binomial regression!");
-    return;
-  endif
-  
-  %- Check and delete .hist files
-  histfile = strcat(family, ".hist"); % not need to attach beta_sbeta
-  if exist(histfile, "file") % histfile is already a string
-    delete(histfile);
   endif
   
   %- Initialization and conditions	

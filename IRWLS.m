@@ -19,6 +19,7 @@ beta_old = 10000 * ones(size(X)(2), 1);
 beta_new = OLS(X, y); % Initial value of beta
 beta_new = [1; 0; 0; 0];
 alpha = 0.5;
+alpha_inf = 0.05
 iter = 0;
 
 %- Check existance of log files 
@@ -50,4 +51,22 @@ subplot(3, 2, 4); plot(M(:, 4)); title('\beta_3'); xlabel("Iteration");
 subplot(3, 2, 5:6); plot(M(:, 5)); title('Deviance: \lambda(\beta)'); xlabel("Iteration");
 suptitle("NB regression convergence using OLS as starting value for IRWLS");
 
+%- Confidence Interval
 varBeta = inverse(X' * V * X);
+seBeta = sqrt(diag(varBeta));
+CILower = beta_new - norminv(1 - 0.5 * alpha_inf) * seBeta;
+CIUpper = beta_new + norminv(1 - 0.5 * alpha_inf) * seBeta;
+CI = [CILower, CIUpper];
+
+%- Wald test on invidual parameters
+WaldStat = beta_new ./ seBeta;
+WaldF = chi2inv(1 - alpha_inf, 1);
+WaldP = 1 - chi2cdf(WaldStat.^2, 1);
+
+%- Likelihood ratio test
+
+
+
+
+
+
