@@ -11,7 +11,7 @@ function [beta_new, deviance] = reduced_negBino(X, y, alpha = -1, epsilon = 10^-
   if use_OLS %use OLS as initial value
     beta_new = OLS(X, y); % Initial value of beta
   else
-    beta_new = [1; 0; 0; 0];  
+    beta_new = [1, zeros(1, size(X)(2)-1)]';  
   endif
   iter = 0;
   
