@@ -20,7 +20,7 @@ function [beta_new, CI, varBeta] = stat_IRWLS(X, y, family, n = 0, alpha = -1, e
   if ~exist("family", "var") || ~ismember(family, family_set)
     disp("Model family missing! Family can be one of the following:");
     disp(["Bernoulli, ", "Binomial, ", "negBino, ", "Poisson"]);
-    return;
+    return;]
   elseif strcmp(family, "Binomial") && n == 0
     disp("n is not given for Binomial regression!");
     return;
@@ -75,9 +75,7 @@ function [beta_new, CI, varBeta] = stat_IRWLS(X, y, family, n = 0, alpha = -1, e
   
   %- Wald Inference
   varBeta = inverse(X' * V * X);
-  CILower = beta_new - norminv(1 - 0.5 * alpha_inf) * diag(varBeta);
-  CIUpper = beta_new + norminv(1 - 0.5 * alpha_inf) * diag(varBeta);
-  CI = [CILower, CIUpper];
+  
   
   
   
