@@ -7,9 +7,9 @@
 %data = csvread("HW3.csv");
 %X = [ones(size(data)(1), 1), data(:, 1:3)];
 %y = data(:, 4);
-%- Test run: stat_IRWLS(X, y, "negBino", n = 0, alpha = 0.5)
+%- Test run: [beta, CI, varBeta] = stat_IRWLS(X, y, "negBino", n = 0, alpha = 0.5);
 
-function beta_new = stat_IRWLS(X, y, family, n = 0, alpha = -1, epsilon = 10^-6, use_OLS = false)
+function [beta_new, CI, varBeta] = stat_IRWLS(X, y, family, n = 0, alpha = -1, epsilon = 10^-6, use_OLS = false, alpha_inf = 0.05)
   %- Validating arguments
   if size(X)(1) ~= length(y)
     printf("Dimension of X is %d x %d and y is %d\n", [size(X), length(y)]);
@@ -72,4 +72,15 @@ function beta_new = stat_IRWLS(X, y, family, n = 0, alpha = -1, epsilon = 10^-6,
   %- Convergence plot of coefficients
   M = dlmread(histfile);
   plot_convergence(M);
-    
+  
+  %- Wald Inference
+  varBeta = inverse(X' * V * X);
+  CILower = beta_new - norminv(1 - 0.5 * alpha_inf) * diag(varBeta);
+  CIUpper = beta_new + norminv(1 - 0.5 * alpha_inf) * diag(varBeta);
+  CI = [CILower, CIUpper];
+  
+  
+  
+
+
+  
