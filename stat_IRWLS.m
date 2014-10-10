@@ -42,7 +42,7 @@ function [beta_new, CI, varBeta, Wald] = stat_IRWLS(X, y, family, n = 0, alpha =
   if use_OLS %use OLS as initial value
     beta_new = OLS(X, y); % Initial value of beta
   else
-    beta_new = [1; 0; 0; 0];  
+    beta_new = [1, zeros(1, size(X)(2)-1)]';  
   endif
   iter = 0;
   
