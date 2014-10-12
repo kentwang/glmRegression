@@ -37,7 +37,7 @@ while(sum(abs(beta_new - beta_old)) / sum(abs(beta_old)) > epsilon)
 	V = diag(var_negBino(mu, alpha));
 	beta_old = beta_new;
 	beta_new = inverse(X' * V * X) * X' * V * (eta .+ (y .- mu) .* diag(inverse(V))); % pay attention to this
-  deviance = -2 * loglik_negBino(mu, y, alpha); 
+  deviance = -2 * loglik_negBino(mu, y, alpha);  %- Any problem with the definition of deviance?
   fprintf(fbeta_id, '%f, %f, %f, %f, %f\n', [deviance; beta_new]);
 endwhile
 fclose(fbeta_id);
