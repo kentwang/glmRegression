@@ -77,24 +77,24 @@ function beta_new = glmReg(X, y, family, link, canonical, n = 0)
     %%- Poisson Distribution
     case "Poisson"
       %- Check if there is an offset/exposure n. Maybe not
-      if n == 0
-        disp("There is no offset/exposure for Poisson. Do something else!");
-        return;
-      else
-        y = y./n; % offset poisson
-      endif
+%      if n == 0
+%        disp("There is no offset/exposure for Poisson. Do something else!");
+%        return;
+%      else
+%        y = y./n; % offset poisson
+%      endif
       
       if canonical
-        mu = inv_log(eta);
+        mu = n.*inv_log(eta);
         V = diag(var_Poisson(mu));
       else
         switch(link)
         case "logit"
-          mu = inv_logit(eta); % rate of event
-          V = diag(var_Poisson(mu).*dg_logit(mu));
+          mu = n.*inv_logit(eta); % rate of event
+          V = diag(var_Poisson(mu).*dg_logit(mu)./n); % This is a little tricky
         endswitch
       endif
-      deviance = 2*(logl_Poisson(y, y) - logl_Poisson(n.*mu, y))
+      deviance = 2*(logl_Poisson(y, y) - logl_Poisson(mu, y))
     endswitch
     beta_old = beta_new;
     beta_new = inverse(X' * V * X) * X' * V * (eta .+ (y .- mu) .* diag(inverse(V))); % pay attention to this
