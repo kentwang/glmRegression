@@ -16,8 +16,8 @@ iter += 1;
 eta = X * beta_new;
 printf('Iteration %d\n', iter);
 mu = n.*inv_logit(eta); % rate of event
-V = diag(var_Poisson(mu).*dg_logit(mu)./n); % This is a little tricky
+V = diag(var_Poisson(mu).*dg_logit(mu./n)./n); % This is a little tricky
 deviance = 2*(logl_Poisson(y, y) - logl_Poisson(mu, y))
 beta_old = beta_new;
 beta_new = inverse(X' * V * X) * X' * V * (eta .+ (y .- mu) .* diag(inverse(V))); % pay attention to this
-fprintf(f_id, '%f, %f, %f\n', [deviance; beta_new]);  
+printf('%f, %f, %f\n', [deviance; beta_new]);  
