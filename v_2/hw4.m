@@ -7,10 +7,10 @@ y = data(:, 3);
 % Test run format glmReg(X, y, family, link, canonical, n = 0)
 
 %- Logistic regression + logit
-beta_logistic_logit = glmReg(X, y, "Binomial", "logit", true, n);
+[b1, CI1, sb1, wald1] = glmReg(X, y, "Binomial", "logit", true, n);
 
 %- Logistic regression + probit
-beta_logistic_probit = glmReg(X, y, "Binomial", "probit", false, n);
+[b2, CI2, sb2, wald2] = glmReg(X, y, "Binomial", "probit", false, n);
 
 %- Poisson and logit test
-beta_poisson_logit = glmReg(X, y, "Poisson", "logit", false, n);
+[b3, CI3, sb3, wald3] = glmReg(X, y, "Poisson", "logit", false, n);
