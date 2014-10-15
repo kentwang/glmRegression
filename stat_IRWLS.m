@@ -53,16 +53,29 @@ function [beta_new, CI, varBeta, Wald] = stat_IRWLS(X, y, family, n = 0, alpha =
     var_fun = @var_negBino;
     loglik_fun = @loglik_negBino;
     reduced_dev = @reduced_negBino_dev;
+  case "Binomial"
+    inv_link_function = @inv_link_binomial;
+    var_fun = @var_binomial;
+    loglik_fun = @loglik_bino;
+    % Any reduce deviance function?
   endswitch  
   
   %- IRWLS iteration
+  %- Switch cases for mu, V, and likelihood functions. And reduced deviance? what is this?
   f_id = fopen(histfile, "a");
   while(sum(abs(beta_new - beta_old)) / sum(abs(beta_old)) > epsilon)
     iter += 1;
-%    printf("Iteration %d\n", iter);
     eta = X * beta_new;
+    
     mu = inv_link_fun(eta);
-%    mu = exp(eta); % use the non-canonical link function for computation instead of the canonical
+    Switch(family)
+    case "negBino"
+      mu = inv_link_negBino(eta)
+    case "Binomial"
+      mu = n.*inv_link_logodds(eta)
+    endswitch
+        
+    
     V = diag(var_fun(mu, alpha));
     beta_old = beta_new;
     beta_new = inverse(X' * V * X) * X' * V * (eta .+ (y .- mu) .* diag(inverse(V))); % pay attention to this
