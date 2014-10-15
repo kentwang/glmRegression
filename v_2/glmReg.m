@@ -9,6 +9,8 @@
 %
 % Todo: - non-canonical link IRWLS
 %       - no-offset poisson regression
+%       - More output information
+%       - fprintf() needs to be modified
 %----------------------------------------------------------------
 %----------------------------------------------------------------
 %- Auxiliary input: 
