@@ -65,11 +65,15 @@ function beta_new = glmReg(X, y, family, link, canonical, n = 0)
       if canonical
         mu = n.*inv_logit(eta);
         V = diag(var_Binomial(n, mu));
+        beta_old = beta_new;
+        beta_new = inverse(X' * V * X) * X' * V * (eta .+ (y .- mu) .* diag(inverse(V))); % pay attention to this
       else 
         switch(link) % Switch/case the link
         case "probit"
           mu = n.*inv_probit(eta);
-          V = diag(var_Binomial(n, mu).*n.*dg_probit(mu./n)); % ignore a(\phi). Times n?
+          V = diag(var_Binomial(n, mu).*(dg_probit(mu./n)./n).^2); % ignore a(\phi). Times n? There is a square of dg^2
+          beta_old = beta_new;
+          beta_new = inverse(X' * V * X) * X' * V * (eta .+ (y .- mu) .* dg_probit(mu./n)./n); %p(eta)/p(mu)
         endswitch
       endif
       deviance = 2*(logl_Binomial(y, n, y) - logl_Binomial(mu, n, y));
@@ -91,13 +95,14 @@ function beta_new = glmReg(X, y, family, link, canonical, n = 0)
         switch(link)
         case "logit"
           mu = n.*inv_logit(eta); % rate of event
-          V = diag(var_Poisson(mu).*dg_logit(mu)./n); % This is a little tricky
+          V = diag(var_Poisson(mu).*(dg_logit(mu./n)./n).^2); % This is a little tricky
+          beta_old = beta_new;
+          beta_new = inverse(X' * V * X) * X' * V * (eta .+ (y .- mu) .* dg_logit(mu./n)./n);
         endswitch
       endif
       deviance = 2*(logl_Poisson(y, y) - logl_Poisson(mu, y))
     endswitch
-    beta_old = beta_new;
-    beta_new = inverse(X' * V * X) * X' * V * (eta .+ (y .- mu) .* diag(inverse(V))); % pay attention to this
+    
     
     fprintf(f_id, '%f, %f, %f\n', [deviance; beta_new]);  
   endwhile 
