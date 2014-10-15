@@ -1,11 +1,17 @@
 %----------------------------------------------------------------
 % This is to reshape the regression under GLM framework.
 % Consider combination of distribution family and link functions.
+% Previous version is v_1
+%
+% Parameters returned
+%     - beta_new: Estimated coefficients of the model
+%     - CI: 95% confidence intervals of all parameters
+%     - seBeta: standard deviation vector matrix of b
+%     - Wald: Wald statistics and pvalues
 %
 % Family: Bernoulli, Binomial, Poisson, NegBino, Gamma
 % Link Function: identity, logit(pi), probit(pi), log, reciprocal 
 %
-% Previous version is v_1
 %
 % Todo: - non-canonical link IRWLS
 %       - no-offset poisson regression
@@ -23,7 +29,7 @@
 %- Test run: hw4.m
 
 
-function beta_new = glmReg(X, y, family, link, canonical, n = 0)
+function [beta_new, CI, seBeta, Wald] = glmReg(X, y, family, link, canonical, n = 0)
   %- Default settings
   epsilon = 10^-8;
   use_OLS = false;
@@ -67,13 +73,17 @@ function beta_new = glmReg(X, y, family, link, canonical, n = 0)
         V = diag(var_Binomial(n, mu));
         beta_old = beta_new;
         beta_new = inverse(X' * V * X) * X' * V * (eta .+ (y .- mu) .* diag(inverse(V))); % pay attention to this
+        Vbeta = inverse(X' * V * X);
       else 
         switch(link) % Switch/case the link
         case "probit"
           mu = n.*inv_probit(eta);
-          V = diag(var_Binomial(n, mu).*(dg_probit(mu./n)./n).^2); % ignore a(\phi). Times n? There is a square of dg^2
+          V = diag(var_Binomial(n, mu).*(dg_probit(mu./n)./n).^2); % V_eta, dg^2
           beta_old = beta_new;
           beta_new = inverse(X' * V * X) * X' * V * (eta .+ (y .- mu) .* dg_probit(mu./n)./n); %p(eta)/p(mu)
+          %- Noncanonical link variance (probit link)
+          Delta = diag(n.^2./(mu.*(n-mu)).*normpdf(X * beta_new));
+          Vbeta = inverse(X' * Delta * diag(var_Binomial(n, mu)) * Delta * X);
         endswitch
       endif
       deviance = 2*(logl_Binomial(y, n, y) - logl_Binomial(mu, n, y));
@@ -91,6 +101,9 @@ function beta_new = glmReg(X, y, family, link, canonical, n = 0)
       if canonical
         mu = n.*inv_log(eta);
         V = diag(var_Poisson(mu));
+        beta_old = beta_new;
+        beta_new = inverse(X' * V * X) * X' * V * (eta .+ (y .- mu) .* diag(inverse(V)));
+        Vbeta = inverse(X' * V * X);
       else
         switch(link)
         case "logit"
@@ -98,6 +111,9 @@ function beta_new = glmReg(X, y, family, link, canonical, n = 0)
           V = diag(var_Poisson(mu).*(dg_logit(mu./n)./n).^2); % This is a little tricky
           beta_old = beta_new;
           beta_new = inverse(X' * V * X) * X' * V * (eta .+ (y .- mu) .* dg_logit(mu./n)./n);
+          %- Noncanonical link vraince (logit link)
+          Delta = diag((n-mu)./n);
+          Vbeta = inverse(X' * Delta * diag(var_Poisson(n, mu)) * Delta * X);
         endswitch
       endif
       deviance = 2*(logl_Poisson(y, y) - logl_Poisson(mu, y))
@@ -111,4 +127,15 @@ function beta_new = glmReg(X, y, family, link, canonical, n = 0)
   %- Convergence plot of coefficients and deviance
   M = dlmread(histfile);
   plot_convergence(M);
+  
+  %- Confidence Interval
+  seBeta = sqrt(diag(Vbeta));
+  CILower = beta_new - norminv(1 - 0.5 * alpha_inf) * seBeta;
+  CIUpper = beta_new + norminv(1 - 0.5 * alpha_inf) * seBeta;
+  CI = [CILower, CIUpper];
+  
+  %- Wald test on invidual parameters
+  WaldStat = beta_new ./ seBeta;
+  WaldP = 1 - chi2cdf(WaldStat.^2, 1);
+  Wald = [WaldStat, WaldP];
   
