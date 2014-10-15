@@ -13,4 +13,4 @@ beta_logistic_logit = glmReg(X, y, "Binomial", "logit", true, n);
 beta_logistic_probit = glmReg(X, y, "Binomial", "probit", false, n);
 
 %- Poisson and logit test
-glmReg(X, y, "Poisson", "logit", false, n);
+beta_poisson_logit = glmReg(X, y, "Poisson", "logit", false, n);
