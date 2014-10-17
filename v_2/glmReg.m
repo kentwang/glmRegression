@@ -108,7 +108,7 @@ function [beta_new, CI, seBeta, Wald] = glmReg(X, y, family, link, canonical, n 
         switch(link)
         case "logit"
           mu = n.*inv_logit(eta); % rate of event
-          V = diag(var_Poisson(mu).*(dg_logit(mu./n)./n).^2); % This is a little tricky
+          V = diag(var_Poisson(mu).*(dg_logit(mu./n)./n).^2); % This is a little tricky, V_eta, dg^2
           beta_old = beta_new;
           beta_new = inverse(X' * V * X) * X' * V * (eta .+ (y .- mu) .* dg_logit(mu./n)./n);
           %- Noncanonical link vraince (logit link)
@@ -117,10 +117,20 @@ function [beta_new, CI, seBeta, Wald] = glmReg(X, y, family, link, canonical, n 
         endswitch
       endif
       deviance = 2*(logl_Poisson(y, y) - logl_Poisson(mu, y))
-    endswitch
     
+    case "Gamma" %- Only consider log link for gamma
+      r = 2; % scale parameter for process variance model
+      mu = inv_log(eta);
+      V = diag(var_Gamma(r, mu/r).*dg_log(mu).^2); % ignore a
+      beta_old = beta_new;
+      beta_new = inverse(X' * inverse(V) * X) * X' * inverse(V) * (eta .+ (y .- mu) .* dg_log(mu));
+      Vbeta = inverse(X'*X)/r;
+      deviance = 2*(logl_Gamma(y, r, y/r) - logl_Gamma(y, r, mu/r));
+    endswitch    
     
-    fprintf(f_id, '%f, %f, %f\n', [deviance; beta_new]);  
+    fdisp(f_id, [deviance; beta_new]');
+%    fprintf(f_id, strcat(repeat('%f, ', length(beta_new)), ' %f'), [deviance; beta_new])
+%    fprintf(f_id, '%f, %f, %f\n', [deviance; beta_new]);  
   endwhile 
   fclose(f_id);  
   
