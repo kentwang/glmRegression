@@ -6,7 +6,7 @@ function flag = glmRegArgValid(X, y, family, n)
     flag = 1; % Dimension not matched error
   endif
 
-  family_set = {"Bernoulli", "Binomial", "NegBino", "Poisson"};
+  family_set = {"Bernoulli", "Binomial", "NegBino", "Poisson", "Gamma"};
   if ~exist("family", "var") || ~ismember(family, family_set)
     disp("Model family missing! Family can be one of the following:");
     disp(["Bernoulli, ", "Binomial, ", "NegBino, ", "Poisson"]);
