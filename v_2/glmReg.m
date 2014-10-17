@@ -29,10 +29,9 @@
 %- Test run: hw4.m
 
 
-function [beta_new, CI, seBeta, Wald] = glmReg(X, y, family, link, canonical, n = 0)
+function [beta_new, CI, seBeta, Wald] = glmReg(X, y, family, link, canonical, n = 0, use_OLS = false)
   %- Default settings
   epsilon = 10^-8;
-  use_OLS = false;
   alpha_inf = 0.05;
   iter = 0;
   
