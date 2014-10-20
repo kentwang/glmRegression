@@ -15,8 +15,6 @@
 %
 % Todo: - non-canonical link IRWLS
 %       - no-offset poisson regression
-%       - More output information
-%       - fprintf() needs to be modified
 %----------------------------------------------------------------
 %----------------------------------------------------------------
 %- Auxiliary input: 
@@ -29,7 +27,7 @@
 %- Test run: hw4.m
 
 
-function [beta_new, CI, seBeta, Wald] = glmReg(X, y, family, link, canonical, n = 0, use_OLS = false)
+function [beta_new, CI, seBeta, Wald] = glmReg(X, y, family, link, canonical, n = 0, plotit = true,  use_OLS = false)
   %- Default settings
   epsilon = 10^-8;
   alpha_inf = 0.05;
@@ -134,8 +132,10 @@ function [beta_new, CI, seBeta, Wald] = glmReg(X, y, family, link, canonical, n 
   fclose(f_id);  
   
   %- Convergence plot of coefficients and deviance
-  M = dlmread(histfile);
-  plot_convergence(M);
+  if plotit
+    M = dlmread(histfile);
+    plot_convergence(M);
+  endif
   
   %- Confidence Interval
   seBeta = sqrt(diag(Vbeta));
