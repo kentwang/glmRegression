@@ -44,4 +44,4 @@ beta_OLS = inverse(X'*X)*X'* y;
 s2 = (y - X*beta_OLS).^2;
 scatter(group, s2);
 
-[b4, CI4, sb4, wald4] = glmReg(X, s2, "Gamma", "log", true);
+[b4, CI4, sb4, wald4] = glmReg(X, s2, "Gamma", "log", true, 0, true);
