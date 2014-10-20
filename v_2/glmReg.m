@@ -13,8 +13,8 @@
 % Link Function: identity, logit(pi), probit(pi), log, reciprocal 
 %
 %
-% Todo: - non-canonical link IRWLS
-%       - no-offset poisson regression
+% Todo: - no-offset poisson regression
+%       - Weighted GLM (Only implemented for Poisson regression for now)
 %----------------------------------------------------------------
 %----------------------------------------------------------------
 %- Auxiliary input: 
@@ -27,11 +27,18 @@
 %- Test run: hw4.m
 
 
-function [beta_new, CI, seBeta, Wald] = glmReg(X, y, family, link, canonical, n = 0, plotit = true,  use_OLS = false)
+function [beta_new, CI, seBeta, Wald] = glmReg(X, y, family, link, canonical, n = 0, W = 0, plotit = true,  use_OLS = false)
   %- Default settings
   epsilon = 10^-8;
   alpha_inf = 0.05;
   iter = 0;
+  
+  %- Define weight matrix
+  if W == 0
+    W_weight = eyes(length(y), length(y));
+  else
+    W_weight = W;
+  endif
   
   %- Argument validation
   argFlag = glmRegArgValid(X, y, family, n);
@@ -99,8 +106,8 @@ function [beta_new, CI, seBeta, Wald] = glmReg(X, y, family, link, canonical, n 
         mu = n.*inv_log(eta);
         V = diag(var_Poisson(mu));
         beta_old = beta_new;
-        beta_new = inverse(X' * V * X) * X' * V * (eta .+ (y .- mu) .* diag(inverse(V)));
-        Vbeta = inverse(X' * V * X);
+        beta_new = inverse(X' * W * V * X) * X' * W * V * (eta .+ (y .- mu) .* diag(inverse(V)));
+        Vbeta = inverse(X' * W * V * W * X);
       else
         switch(link)
         case "logit"
