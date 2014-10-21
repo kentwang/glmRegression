@@ -26,7 +26,7 @@ function [beta_new, gamma_new, z] = poisZeroInflatedEM(X, y, z0, epsilon = 10^-6
     delete(histfile);
   endif
   
-%  f_id = fopen(histfile, "a");
+  f_id = fopen(histfile, "a");
   iter = 0;
   while(sum(abs(beta_new - beta_old)) / sum(abs(beta_old)) > epsilon || sum(abs(gamma_new - gamma_old)) / sum(abs(gamma_old)) > epsilon)
     iter += 1;
@@ -43,9 +43,9 @@ function [beta_new, gamma_new, z] = poisZeroInflatedEM(X, y, z0, epsilon = 10^-6
     beta_new = glmReg(X, y, "Poisson", "log", true, repmat(1, length(z0), 1), 1 - z, false);
     gamma_new = glmReg(X, z, "Binomial", "logit", true, repmat(1, length(z0), 1), 0, false);
     
-%    fdisp(f_id, [beta_new', gamma_new']);
+    fdisp(f_id, [beta_new', gamma_new']);
   endwhile
-%  fclose(f_id); 
+  fclose(f_id); 
   
   if plotit
     M = dlmread(histfile);
