@@ -1,6 +1,7 @@
 %- Choose is not included Binomial coefficients [log(NchooseK(n, y))]
 %- Note, y is modified for logistic regression. Plus a noise
 function ll = logl_Binomial(mu, n, y)
+  y = y * 1.0; % boolean matrix to matrix
   if unique(n) == 1
     for i = 1:length(y)
       if y(i) == 0
