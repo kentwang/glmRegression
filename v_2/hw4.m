@@ -9,7 +9,7 @@ y = data(:, 3);
 % Test run format glmReg(X, y, family, link, canonical, n = 0)
 
 %- Logistic regression + logit
-[b1, CI1, sb1, wald1] = glmReg(X, y, "Binomial", "logit", true, n, false);
+[b1, CI1, sb1, wald1] = glmReg(X, y, "Binomial", "logit", true, n);
 
 %- Logistic regression + probit
 [b2, CI2, sb2, wald2] = glmReg(X, y, "Binomial", "probit", false, n, false);
