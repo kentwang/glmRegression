@@ -35,9 +35,9 @@ function [beta_new, CI, seBeta, Wald] = glmReg(X, y, family, link, canonical, n 
   
   %- Define weight matrix
   if W == 0
-    W_weight = eyes(length(y), length(y));
+    W_weight = eye(length(y), length(y));
   else
-    W_weight = W;
+    W_weight = diag(W);
   endif
   
   %- Argument validation
@@ -67,7 +67,7 @@ function [beta_new, CI, seBeta, Wald] = glmReg(X, y, family, link, canonical, n 
   while(sum(abs(beta_new - beta_old)) / sum(abs(beta_old)) > epsilon)
     iter += 1;
     eta = X * beta_new;
-    printf('Iteration %d\n', iter);
+%    printf('Iteration %d\n', iter);
     
     switch(family) % Switch/case the family
     %%- Binomial Distribution
@@ -106,8 +106,8 @@ function [beta_new, CI, seBeta, Wald] = glmReg(X, y, family, link, canonical, n 
         mu = n.*inv_log(eta);
         V = diag(var_Poisson(mu));
         beta_old = beta_new;
-        beta_new = inverse(X' * W * V * X) * X' * W * V * (eta .+ (y .- mu) .* diag(inverse(V)));
-        Vbeta = inverse(X' * W * V * W * X);
+        beta_new = inverse(X' * W_weight * V * X) * X' * W_weight * V * (eta .+ (y .- mu) .* diag(inverse(V)));
+        Vbeta = inverse(X' * W_weight * V * W_weight * X);
       else
         switch(link)
         case "logit"
