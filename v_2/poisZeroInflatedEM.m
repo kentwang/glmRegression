@@ -17,7 +17,7 @@ function [beta_new, gamma_new, z] = poisZeroInflatedEM(X, y, z0, epsilon = 10^-6
   %- Parameters initialization
   beta_old = gamma_old = repmat(100, size(X)(2), 1);
   z = z0;
-  beta_new = glmReg(X, y, "Poisson", "log", true, repmat(1, length(z0), 1), 1 - z, false);
+  beta_new = glmReg(X, y, "Poisson", "log", true, repmat(1, length(z0), 1), 1 - z, false); % Octave argument is tricky. It will update the holding variables!
   gamma_new = glmReg(X, z, "Binomial", "logit", true, repmat(1, length(z0), 1), 0, false);
   
   %- Check and delete "poisZeroInflated.hist" files
