@@ -13,7 +13,7 @@
 % Testrun: don't save to .hist files. Too many
 %-------------------------------------------------------------------
 
-function [beta_new, gamma_new, z] = poisZeroInflatedEM(X, y, z0, epsilon = 10^-6, plotit = false)
+function [beta_new, gamma_new, z] = poisZeroInflatedEM(X, y, z0, plotit = false, epsilon = 10^-6)
   %- Parameters initialization
   beta_old = gamma_old = repmat(100, size(X)(2), 1);
   z = z0;
