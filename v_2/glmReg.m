@@ -34,7 +34,7 @@ function [beta_new, CI, seBeta, Wald] = glmReg(X, y, family, link, canonical, n 
   iter = 0;
   
   %- Define weight matrix
-  if W == 0
+  if length(W) == 1
     W_weight = eye(length(y), length(y));
   else
     W_weight = diag(W);
@@ -120,7 +120,7 @@ function [beta_new, CI, seBeta, Wald] = glmReg(X, y, family, link, canonical, n 
           Vbeta = inverse(X' * Delta * diag(var_Poisson(n, mu)) * Delta * X);
         endswitch
       endif
-      deviance = 2*(logl_Poisson(y, y) - logl_Poisson(mu, y))
+      deviance = 2*(logl_Poisson(y, y) - logl_Poisson(mu, y));
     
     case "Gamma" %- Only consider log link for gamma
       r = 2; % scale parameter for process variance model
