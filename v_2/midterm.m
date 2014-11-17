@@ -5,6 +5,7 @@ X = [ones(length(x), 1), x];
 %- Test 1, intuitively define z according to the signs of y
 z0 = (y == 0);
 [beta_new, gamma_new, z] = poisZeroInflatedEM(X, y, z0, true);
+suptitle('Convergence of EM algorithm for Zero-inflated Poisson regression');
 
 %- Test 2, generate Bernoulli random variables for membership
 %- No need They are pretty much the same
