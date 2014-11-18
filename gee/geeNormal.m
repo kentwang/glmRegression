@@ -7,184 +7,95 @@ function [b,sigma2,MVb,EVb,R]=geeNormal(Y,Z,s,t,b0)
 % b0 = estimated coefficients from last iteration
 %
 
-y = {};
-X = {};
-muhat = {};
-r = zeros(s, t);
+  disp(b0);
+  y = {};
+  X = {};
+  muhat = {};
+  r = zeros(s, t);
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-p=size(Z,2);
-m=0;
-for j=1:s
-    y{j}=Y(m+1:m+t,1);
-    X{j}=Z(m+1:m+t,:);
-    m=m+t;
-endfor
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-
-% Estimate mu and A
-%for j=1:s
-%    muhat{j}=exp(X{j}*b0);
-%    A{j}=diag(muhat{j});
-%end
-
-for j=1:s
-    muhat{j}=X{j} * b0;
-endfor
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  p=size(Z,2);
+  m=0;
+  for j=1:s
+      y{j}=Y(m+1:m+t,1);
+      X{j}=Z(m+1:m+t,:);
+      m=m+t;
+  endfor
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 
-% Compute Pearson residuals
-%for j=1:s
-%    %
-%    % Create temporary variables
-%    mutemp=muhat{j};
-%    Atemp=A{j};
-%    ytemp=y{j};
-%    %
-%    for i=1:t
-%        r(j,i)=(ytemp(i)-mutemp(i))/sqrt(Atemp(i,i));
-%    end
-%end
-
-for j = 1:s
-  r(j, :) = (y{j} - muhat{j})';
-endfor
+  % Estimate mu and A
+  for j=1:s
+      muhat{j}=X{j} * b0;
+  endfor
 
 
+  for j = 1:s
+    r(j, :) = (y{j} - muhat{j})';
+  endfor
+
+  % compute scale parameter estimate
+  C=0;
+  for j=1:s
+    C=C+((y{j}-muhat{j})*(y{j}-muhat{j})');
+  end
+  sigma2=trace(C/(t*s-p));
 
 
-
-
-% compute scale parameter estimate
-C=0;
-for j=1:s
-  C=C+((y{j}-muhat{j})*(y{j}-muhat{j})');
-    %for i=1:t
-     %   C=C+r(j,i)^2;
-     %   C=C+(A{j}^(-1/2)*(y{j}-muhat{j})*(y{j}-muhat{j})'*A{j}^(-1/2));
-    %end
-end
-sigma2=trace(C/(t*s-p));
-%sigma2=((C/(t*s-p)));
-%sigma2=1;
-
-%%%%%%%%% Compute working correlation matrix
-%
-% Unspecified
-% C=zeros(t,t);
-% for j=1:s
-%     C=C + A{j}^(-1/2)*(y{j}-muhat{j})*(y{j}-muhat{j})'*A{j}^(-1/2)/(sigma2*(s-p));
-% end
-%
-%
-% Exchangable
-alpha=0;
-for j=1:s
-  for i=1:t-1
-    for m=i+1:t
-      alpha = alpha + (r(j,i)*r(j,m))/((0.5*s*(t-1))*p);
+  %%%%%%%%% Compute working correlation matrix
+  % Exchangable
+  alpha=0;
+  for j=1:s
+    for i=1:t-1
+      for m=i+1:t
+        alpha = alpha + (r(j,i)*r(j,m))/((0.5*s*(t-1))*p);
+      end
     end
   end
-end
-alpha=alpha/sigma2;
-%
-%
-% m-dependent
-% m=1;
-% alpha=0;
-% for j=1:s
-%     for i=1:t-m
-%         alpha=alpha+(r(j,i)*r(j,i+m)/((t-m)*s-p));
-%     end
-% end
-% alpha=alpha/sigma2;
-%
-%
-% AR(1)
-% alpha=0;
-% for j=1:s
-%     for i=1:t-1
-%         alpha=alpha+(r(j,i)*r(j,i+1)/((t-1)*s-p));
-%     end
-% end
-% alpha=alpha/sigma2;
-%
-% Independent
-% alpha=0;
-%
-% Fill in working correlation matrix
-R=eye(t);
-for u=1:t-1
-    for v=u+1:t
-        %
-        % Independent
-        % R(u,v)=alpha; R(v,u)=alpha;
-        %
-        % Unspecified
-        %R(u,v)=C(u,v); R(v,u)=C(u,v);
-        %
-        % Exchangable 
-        R(u,v)=alpha; R(v,u)=alpha;
-        %
-        % m-dependent
-        %if abs(u-v)<=m
-        %    R(u,v)=alpha; R(v,u)=alpha;
-        %else
-        %    R(u,v)=0; R(v,u)=0;
-        %end
-        %
-        % AR(1)
-        %R(u,v)=alpha^(abs(u-v)); R(v,u)=alpha^(abs(u-v));
-    end
-end
-%
-% Display working correlation matrix
-%R
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  alpha=alpha/sigma2;
 
-% Compute V, V is R-star in the normal case
-V=[];
-for j=1:s
-  % P{j}=A{j}^(1/2)*R*A{j}^(1/2)*sigma2;
-  P{j}=R*sigma2;
-  V=blkdiag(V,P{j});
-end
+%   AR(1)
+%   alpha=0;
+%   for j=1:s
+%       for i=1:t-1
+%           alpha=alpha+(r(j,i)*r(j,i+1)/((t-1)*s-p));
+%       end
+%   end
+%   alpha=alpha/sigma2;
 
-% Compute D
-%D=[];
-%for j=1:s
-%    tempX=X{j};
-%    tempD=zeros(t,p);
-%    for i=1:t
-%        for k=1:p
-%            tempD(i,k)=tempX(i,k)*exp(tempX(i,:)*b0);
-%        end
-%    end
-%    G{j}=tempD;
-%    D=[D; tempD];
-%end
+  % Fill in working correlation matrix
+  R=eye(t);
+  for u=1:t-1
+      for v=u+1:t
+          % Exchangable 
+          % R(u,v)=alpha; R(v,u)=alpha;
+          % AR(1)
+          R(u,v)=alpha^(abs(u-v)); R(v,u)=alpha^(abs(u-v));
+      end
+  end
 
-% Adjust coefficient estimates
-%b=b0+inv(D'*inv(V)*D)*D'*inv(V)*(Y-exp(Z*b0));
-b = b0 + inv(Z'*inv(V)*Z)*Z'*inv(V)*Y;
+  % Compute RStart
+  RStar = [];
+  for j=1:s
+    RStar = blkdiag(RStar, R);
+  endfor
 
-% Compute model-based estimate for variance-covariance matrix of b
-%MVb=inv(D'*inv(V)*D);
-MVb=inv(Z'*inv(V)*Z);
+  % Adjust coefficient estimates
+  %b=b0+inv(D'*inv(V)*D)*D'*inv(V)*(Y-exp(Z*b0)); This is wrong for normal case
+  b = inv(Z'*inv(RStar)*Z)*Z'*inv(RStar)*Y;
 
-% Compute empirical estimator of variance-covariance matrix of b
-% H=zeros(p);
-H = [];
-for j=1:s
-  % H=H+G{j}'*inv(P{j})*(y{j}-muhat{j})*(y{j}-muhat{j})'*inv(P{j})*G{j};
-  % H=H+(y{j}-muhat{j})*(y{j}-muhat{j})';
-  H = blkdiag(H, (y{j}-muhat{j})*(y{j}-muhat{j})');
-end
-EVb=inv(Z'*inv(V)*Z)*Z'*inv(V)*H*inv(V)*Z*inv(Z'*inv(V)*Z);   
+  % Compute model-based estimate for variance-covariance matrix of b
+  MVb=inv(Z'*inv(RStar)*Z);
 
+  % Compute empirical estimator of variance-covariance matrix of b
+  % H=zeros(p);
+  H = [];
+  for j=1:s
+    H = blkdiag(H, (y{j}-muhat{j})*(y{j}-muhat{j})');
+  end
+  EVb=inv(Z'*inv(RStar)*Z)*Z'*inv(RStar)*H*inv(RStar)*Z*inv(Z'*inv(RStar)*Z);   
 
+endfunction
 
 
