@@ -7,7 +7,6 @@ function [b,sigma2,MVb,EVb,R]=geeNormal(Y,Z,s,t,b0)
 % b0 = estimated coefficients from last iteration
 %
 
-  disp(b0);
   y = {};
   X = {};
   muhat = {};
@@ -45,24 +44,24 @@ function [b,sigma2,MVb,EVb,R]=geeNormal(Y,Z,s,t,b0)
 
   %%%%%%%%% Compute working correlation matrix
   % Exchangable
-  alpha=0;
-  for j=1:s
-    for i=1:t-1
-      for m=i+1:t
-        alpha = alpha + (r(j,i)*r(j,m))/((0.5*s*(t-1))*p);
-      end
-    end
-  end
-  alpha=alpha/sigma2;
+%  alpha=0;
+%  for j=1:s
+%    for i=1:t-1
+%      for m=i+1:t
+%        alpha = alpha + (r(j,i)*r(j,m))/((0.5*s*(t-1))*p);
+%      end
+%    end
+%  end
+%  alpha=alpha/sigma2;
 
 %   AR(1)
-%   alpha=0;
-%   for j=1:s
-%       for i=1:t-1
-%           alpha=alpha+(r(j,i)*r(j,i+1)/((t-1)*s-p));
-%       end
-%   end
-%   alpha=alpha/sigma2;
+   alpha=0;
+   for j=1:s
+       for i=1:t-1
+           alpha=alpha+(r(j,i)*r(j,i+1)/((t-1)*s-p));
+       end
+   end
+   alpha=alpha/sigma2;
 
   % Fill in working correlation matrix
   R=eye(t);

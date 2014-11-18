@@ -89,12 +89,13 @@ bold = ones(length(b0), 1);
 epsilon = 10^-6;
 iter = 0;
 
+% note residual sum of squares is not a good criterion now
 while(max(abs(bnew - bold)) / sum(abs(bold)) > epsilon)
   iter++;
   printf("Iteration %d\n", iter);
   bold = bnew;
   [bnew,sigma2,MVb,EVb,R] = geeNormal(Y,Z,s,t,bnew);
-  disp(sum((Y - Z*bnew).^2));
+  disp(bnew);
 endwhile
 
 
