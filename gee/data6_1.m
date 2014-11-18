@@ -82,9 +82,9 @@ Z = [1, 1, 200; % Z without dummies, data problem: it is 250, not 150
 %     1, 0, 0, 275];
 s = 12;
 t = 3;
-%b0 = inverse(Z'*Z)*Z'*Y;
-%bnew = b0;
-bnew = [1, 0, 0]';
+b0 = inverse(Z'*Z)*Z'*Y;
+bnew = b0;
+%bnew = [1, 0, 0]';
 bold = ones(length(b0), 1);
 epsilon = 10^-6;
 iter = 0;
