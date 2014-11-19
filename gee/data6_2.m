@@ -12,44 +12,85 @@ Yraw = [63, 89;
         59, 64];
 Y = [Yraw([1, 4, 7, 10, 2, 5, 8, 11, 3, 6, 9, 12], 1); Yraw([1, 4, 7, 10, 2, 5, 8, 11, 3, 6, 9, 12], 2)];
 
-Z = [1, -1, 0;
-     1, -1, 0;
-     1, -1, 0;
-     1, -1, 0;
-     1, 0, 0;
-     1, 0, 0;
-     1, 0, 0;
-     1, 0, 0;
-     1, 1, 0;
-     1, 1, 0;
-     1, 1, 0;
-     1, 1, 0;
-     1, -1, 1;
-     1, -1, 1;
-     1, -1, 1;
-     1, -1, 1;
-     1, 0, 1;
-     1, 0, 1;
-     1, 0, 1;
-     1, 0, 1;
-     1, 1, 1
-     1, 1, 1;
-     1, 1, 1;
-     1, 1, 1;];
+%Z = [1, -1, 0; % this is wrong. Time is a continuous variable
+%     1, -1, 0;
+%     1, -1, 0;
+%     1, -1, 0;
+%     1, 0, 0;
+%     1, 0, 0;
+%     1, 0, 0;
+%     1, 0, 0;
+%     1, 1, 0;
+%     1, 1, 0;
+%     1, 1, 0;
+%     1, 1, 0;
+%     1, -1, 1;
+%     1, -1, 1;
+%     1, -1, 1;
+%     1, -1, 1;
+%     1, 0, 1;
+%     1, 0, 1;
+%     1, 0, 1;
+%     1, 0, 1;
+%     1, 1, 1
+%     1, 1, 1;
+%     1, 1, 1;
+%     1, 1, 1;];
+%     
+     
+Z = [1, 10, 0;
+     1, 10, 0;
+     1, 10, 0;
+     1, 10, 0;
+     1, 20, 0;
+     1, 20, 0;
+     1, 20, 0;
+     1, 20, 0;
+     1, 30, 0;
+     1, 30, 0;
+     1, 30, 0;
+     1, 30, 0;
+     1, 10, 1;
+     1, 10, 1;
+     1, 10, 1;
+     1, 10, 1;
+     1, 20, 1;
+     1, 20, 1;
+     1, 20, 1;
+     1, 20, 1;
+     1, 30, 1
+     1, 30, 1;
+     1, 30, 1;
+     1, 30, 1;];
 s = 6;
 t = 4;
-b0 = inverse(Z'*Z)*Z'*Y;
-bnew = b0;
-%bnew = [1, 0, 0]';
-bold = ones(length(b0), 1);
-epsilon = 10^-6;
-iter = 0;
+
+fit_exchange = gee(Y, Z, s, t, workCor = "Exchangeable");
+fit_ar1 = gee(Y, Z, s, t, workCor = "AR1");
+
+% summary
+% exchangeable
+btable1 = [fit_exchange.bnew, ...
+sqrt(diag(fit_exchange.MVb)), ...
+fit_exchange.bnew ./ sqrt(diag(fit_exchange.MVb)), ...
+2*(1-normcdf(abs(fit_exchange.bnew) ./ sqrt(diag(fit_exchange.MVb)))), ...
+sqrt(diag(fit_exchange.EVb)), ...
+fit_exchange.bnew ./ sqrt(diag(fit_exchange.EVb)), ...
+2*(1-normcdf(abs(fit_exchange.bnew) ./ sqrt(diag(fit_exchange.EVb))))];
+
+fit_exchange.MVb
+fit_exchange.EVb
 
 
-while(max(abs(bnew - bold)) / sum(abs(bold)) > epsilon)
-  iter++;
-  printf("Iteration %d\n", iter);
-  bold = bnew;
-  [bnew,sigma2,MVb,EVb,R] = geeNormal(Y,Z,s,t,bnew,"Exchangeable");
-  disp(bnew);
-endwhile
+% AR(1)
+btable2 = [fit_ar1.bnew, ...
+sqrt(diag(fit_ar1.MVb)), ...
+fit_ar1.bnew ./ sqrt(diag(fit_ar1.MVb)), ...
+2*(1-normcdf(abs(fit_ar1.bnew) ./ sqrt(diag(fit_ar1.MVb)))), ...
+sqrt(diag(fit_ar1.EVb)), ...
+fit_ar1.bnew ./ sqrt(diag(fit_ar1.EVb)), ...
+2*(1-normcdf(abs(fit_ar1.bnew) ./ sqrt(diag(fit_ar1.EVb))))];
+
+fit_ar1.MVb
+fit_ar1.EVb
+
