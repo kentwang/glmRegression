@@ -37,7 +37,7 @@ Z = [1, -1, 0;
      1, 1, 1;
      1, 1, 1;];
 s = 6;
-t = 3;
+t = 4;
 b0 = inverse(Z'*Z)*Z'*Y;
 bnew = b0;
 %bnew = [1, 0, 0]';
@@ -50,6 +50,6 @@ while(max(abs(bnew - bold)) / sum(abs(bold)) > epsilon)
   iter++;
   printf("Iteration %d\n", iter);
   bold = bnew;
-  [bnew,sigma2,MVb,EVb,R] = geeNormal(Y,Z,s,t,bnew);
+  [bnew,sigma2,MVb,EVb,R] = geeNormal(Y,Z,s,t,bnew,"Exchangeable");
   disp(bnew);
 endwhile

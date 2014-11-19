@@ -94,7 +94,7 @@ while(max(abs(bnew - bold)) / sum(abs(bold)) > epsilon)
   iter++;
   printf("Iteration %d\n", iter);
   bold = bnew;
-  [bnew,sigma2,MVb,EVb,R] = geeNormal(Y,Z,s,t,bnew);
+  [bnew,sigma2,MVb,EVb,R] = geeNormal(Y,Z,s,t,bnew,"AR1");
   disp(bnew);
 endwhile
 
