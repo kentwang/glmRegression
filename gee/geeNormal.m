@@ -1,3 +1,4 @@
+% GEE for normal caswe
 function [b,sigma2,MVb,EVb,R]=geeNormal(Y,Z,s,t,b0, workCor)
 %
 % Y = concatonated tsx1 response vector

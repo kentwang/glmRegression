@@ -1,3 +1,4 @@
+% GEE for GLM cases
 function [b,sigma2,MVb,EVb,R]=geeGLM(Y,Z,s,t,b0,workCor,family,n=0,mdep=1)
   % Y = concatonated tsx1 response vector
   % Z = concatonated tsxp matrix of regressor variables
