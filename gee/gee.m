@@ -1,5 +1,12 @@
-function result = gee(Y, Z, s, t, workCor = "Independent", family = "Normal", n = 0, mdep = 1, epsilon = 10^-6)
-  b0 = inverse(Z'*Z)*Z'*Y;
+% This function is a wrapper of the GEE for both normal and GLM case
+function result = gee(Y, Z, s, t, workCor = "Independent", family = "Normal", n = 0, mdep = 1, epsilon = 10^-6, OLS = true)
+  if(OLS)
+    b0 = inverse(Z'*Z)*Z'*Y;
+  elseif(strcmp(family, "Poisson"))
+    b0 = inverse(Z'*Z)*Z'*log(Y + 0.00001);
+  else
+    b0 = ones(size(Z, 2), 1);
+  endif
   bnew = b0;
   bold = ones(length(b0), 1);
   iter = 0;
@@ -13,7 +20,7 @@ function result = gee(Y, Z, s, t, workCor = "Independent", family = "Normal", n 
     if(strcmp(family, "Normal"))
       [bnew,sigma2,MVb,EVb,R] = geeNormal(Y,Z,s,t,bnew,workCor);
     else
-      [bnew,sigma2,MVb,EVb,R] = geeGLM(Y,Z,s,t,b0,workCor,family,n,mdep); #only binomial/logistic GEE considered now
+      [bnew,sigma2,MVb,EVb,R] = geeGLM(Y,Z,s,t,bold,workCor,family,n,mdep); #only binomial/logistic GEE considered now, change b0 to bold
     endif
   endwhile
   result = struct("bnew", bnew, "sigma2", sigma2, "MVb", MVb, "EVb", EVb, "R", R);
