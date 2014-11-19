@@ -1,4 +1,4 @@
-function [b,sigma2,MVb,EVb,R]=geeNormal(Y,Z,s,t,b0)
+function [b,sigma2,MVb,EVb,R]=geeNormal(Y,Z,s,t,b0, workCor)
 %
 % Y = concatonated tsx1 response vector
 % Z = concatonated tsxp matrix of regressor variables
@@ -6,6 +6,7 @@ function [b,sigma2,MVb,EVb,R]=geeNormal(Y,Z,s,t,b0)
 % t = number of observations per subject
 % b0 = estimated coefficients from last iteration
 %
+% Todo: add GLM for the muhat
 
   y = {};
   X = {};
@@ -44,33 +45,41 @@ function [b,sigma2,MVb,EVb,R]=geeNormal(Y,Z,s,t,b0)
 
   %%%%%%%%% Compute working correlation matrix
   % Exchangable
-%  alpha=0;
-%  for j=1:s
-%    for i=1:t-1
-%      for m=i+1:t
-%        alpha = alpha + (r(j,i)*r(j,m))/((0.5*s*(t-1))*p);
-%      end
-%    end
-%  end
-%  alpha=alpha/sigma2;
-
-%   AR(1)
-   alpha=0;
-   for j=1:s
-       for i=1:t-1
-           alpha=alpha+(r(j,i)*r(j,i+1)/((t-1)*s-p));
-       end
-   end
-   alpha=alpha/sigma2;
+  if(strcmp(workCor, "Exchangeable"))    
+    alpha=0;
+    for j=1:s
+      for i=1:t-1
+        for m=i+1:t
+          alpha = alpha + (r(j,i)*r(j,m))/((0.5*s*(t-1))*p);
+        end
+      end
+    end
+    alpha=alpha/sigma2;
+  endif
+   
+  % AR(1)
+  if(strcmp(workCor, "AR1"))    
+    alpha=0;
+    for j=1:s
+      for i=1:t-1
+        alpha=alpha+(r(j,i)*r(j,i+1)/((t-1)*s-p));
+      end
+    end
+    alpha=alpha/sigma2;
+  endif
 
   % Fill in working correlation matrix
   R=eye(t);
   for u=1:t-1
       for v=u+1:t
           % Exchangable 
-          % R(u,v)=alpha; R(v,u)=alpha;
+          if(strcmp(workCor, "Exchangeable"))
+            R(u,v)=alpha; R(v,u)=alpha;
+          endif
           % AR(1)
-          R(u,v)=alpha^(abs(u-v)); R(v,u)=alpha^(abs(u-v));
+          if(strcmp(workCor, "AR1"))
+            R(u,v)=alpha^(abs(u-v)); R(v,u)=alpha^(abs(u-v));
+          endif
       end
   end
 
@@ -81,7 +90,6 @@ function [b,sigma2,MVb,EVb,R]=geeNormal(Y,Z,s,t,b0)
   endfor
 
   % Adjust coefficient estimates
-  %b=b0+inv(D'*inv(V)*D)*D'*inv(V)*(Y-exp(Z*b0)); This is wrong for normal case
   b = inv(Z'*inv(RStar)*Z)*Z'*inv(RStar)*Y;
 
   % Compute model-based estimate for variance-covariance matrix of b
