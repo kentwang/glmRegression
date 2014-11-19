@@ -22,7 +22,7 @@ end
 % Estimate mu and A
 for j=1:s
     muhat{j}=exp(X{j}*b0);
-    A{j}=diag(muhat{j});
+    A{j}=diag(muhat{j}); % hold on, I think this is the independent case. Not really. The book has a typo
 end
 
 % Compute Pearson residuals
