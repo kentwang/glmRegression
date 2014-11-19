@@ -80,24 +80,40 @@ Z = [1, 1, 200; % Z without dummies, data problem: it is 250, not 150
 %     1, 0, 0, 275;
 %     1, 0, 0, 275;
 %     1, 0, 0, 275];
+
+% problem 6.1 Data processing obmitted
 s = 12;
 t = 3;
-b0 = inverse(Z'*Z)*Z'*Y;
-bnew = b0;
-%bnew = [1, 0, 0]';
-bold = ones(length(b0), 1);
-epsilon = 10^-6;
-iter = 0;
 
-% note residual sum of squares is not a good criterion now
-while(max(abs(bnew - bold)) / sum(abs(bold)) > epsilon)
-  iter++;
-  printf("Iteration %d\n", iter);
-  bold = bnew;
-  [bnew,sigma2,MVb,EVb,R] = geeNormal(Y,Z,s,t,bnew,"AR1");
-  disp(bnew);
-endwhile
+hist(Y);
+xlabel("Paper strength")
+ylabel("Frequency");
 
+fit_exchange = gee(Y, Z, s, t, workCor = "Exchangeable");
+fit_ar1 = gee(Y, Z, s, t, workCor = "AR1");
 
+% data summary  
+% exchangeable
+[fit_exchange.bnew, ...
+sqrt(diag(fit_exchange.MVb)), ...
+fit_exchange.bnew ./ sqrt(diag(fit_exchange.MVb)), ...
+2*(1-normcdf(fit_exchange.bnew ./ sqrt(diag(fit_exchange.MVb)))), ...
+sqrt(diag(fit_exchange.EVb)), ...
+fit_exchange.bnew ./ sqrt(diag(fit_exchange.EVb)), ...
+2*(1-normcdf(fit_exchange.bnew ./ sqrt(diag(fit_exchange.EVb))))]
 
+fit_exchange.MVb
+fit_exchange.EVb
+
+% AR(1)
+[fit_ar1.bnew, ...
+sqrt(diag(fit_ar1.MVb)), ...
+fit_ar1.bnew ./ sqrt(diag(fit_ar1.MVb)), ...
+2*(1-normcdf(fit_ar1.bnew ./ sqrt(diag(fit_ar1.MVb)))), ...
+sqrt(diag(fit_ar1.EVb)), ...
+fit_ar1.bnew ./ sqrt(diag(fit_ar1.EVb)), ...
+2*(1-normcdf(fit_ar1.bnew ./ sqrt(diag(fit_ar1.EVb))))]
+
+fit_ar1.MVb
+fit_ar1.EVb
 
