@@ -21,8 +21,13 @@ M = [];
 for i=1:N
   M = blkdiag(M, repmat(1, n, 1));
 endfor
+%eta_low = -1/max(eig(M*M'));
+MM = M*M';
+eta_low = -0.004 % Is this a fixed number?
+
 
 D = eye(S) + eta_old.*M*M';
+invD = inv(D);
 
 % define and solve the function partial(l_R)/paritial(theta) for theta
 op = optimset("Display","final");
@@ -35,25 +40,46 @@ theta_new = fsolve(plr_ptheta, theta_old, optimset("Display", "iter"));
 
 % optimization test, maximize the likelihood directly
 % fminbnd is finding the minimum. Put a negative sign on everything
-lrtheta = @.5*(theta)(S-p)*log((boxcox(y, theta) - X*beta_old)'*inv(D)*(boxcox(y, theta) - X*beta_old)) - (theta - 1)*sum(log(y));
+t0 = clock();
+lrtheta = @(theta) .5*(S-p)*log((boxcox(y, theta) - X*beta_old)'*invD*(boxcox(y, theta) - X*beta_old)) - (theta - 1)*sum(log(y));
 fminbnd(lrtheta, -3, 3)
-fminsearch(lrtheta, 1)
-lreta = @(eta).5*(S-p)*log(err'*(eye(S) + eta.*M*M')*err) + ...
-          .5*logdet(eye(S) + eta.*M*M') + ...
-          .5*logdet(X'*inv(eye(S) + eta*M*M')*X);
+elapsed_time_1 = etime(clock(), t0)
 
-fminbnd(lreta, 0, 1)         
+t0 = clock();
+lreta = @(eta).5*(S-p)*log(err'*(eye(S) + eta*MM)*err) + ...
+          .5*logdet(eye(S) + eta*MM) + ...
+          .5*logdet(X'*inv(eye(S) + eta*MM)*X);
+
+fminbnd(lreta, eta_low, 10)
+fminsearch(lreta, 1)
+elapsed_time_2 = etime(clock(), t0)       
 
 
-fminsearch (@(x) (x(1)-5).^2+(x(2)-8).^4, [0;0])
+%fminsearch (@(x) (x(1)-5).^2+(x(2)-8).^4, [0;0])
 
+
+%% Two dimensional optimization seems harder and slower
 % use fminsearch with both theta and eta
 % param = [theta; eta];%theta = param(1); eta = param(2);
-lr_theta_eta = @(param).5*(S-p)*log((boxcox(y, param(1)) - X*beta_old)'*inv(eye(S) + param(2)*M*M')*(boxcox(y, param(1)) - X*beta_old))...
-                +.5*logdet(eye(S) + param(2)*M*M', 'chol')...
-                +.5*logdet(X'*inv(eye(S) + param(2)*M*M')*X)...
-                +(param(1)-1)*sum(log(y));
-end;
-t0 = clock();
-[param, fval] = fminsearch(lr_theta_eta, [0.5; 0]);                
-elapsed_time = etime(clock(), t0);
+%lr_theta_eta = @(param).5*(S-p)*log((boxcox(y, param(1)) - X*beta_old)'*inv(eye(S) + param(2)*M*M')*(boxcox(y, param(1)) - X*beta_old))...
+%                +.5*logdet(eye(S) + param(2)*M*M', 'chol')...
+%                +.5*logdet(X'*inv(eye(S) + param(2)*M*M')*X)...
+%                +(param(1)-1)*sum(log(y));
+%end;
+%t0 = clock();
+%[param, fval] = fminsearch(lr_theta_eta, [0.5; 0]);                
+%elapsed_time = etime(clock(), t0);
+
+
+%% Two dimensional optimization seems harder
+%phi = @(param) .5*(S-p)*log((boxcox(y, param(1)) - X*beta_old)'*inv(eye(S) + param(2)*M*M')*(boxcox(y, param(1)) - X*beta_old))...
+%                +.5*logdet(eye(S) + param(2)*M*M')...
+%                +.5*logdet(X'*inv(eye(S) + param(2)*M*M')*X)...
+%                -(param(1)-1)*sum(log(y));
+%
+%h = @(param) param(2) - eta_low;
+%
+%t0 = clock();
+%[x, obj, info, iter, nf, lambda] = sqp([0.5; 0], phi, [], h)  
+%elapsed_time = etime(clock(), t0);
+
