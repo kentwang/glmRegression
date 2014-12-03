@@ -172,7 +172,11 @@ function [b,sigma2,MVb,EVb,R]=geeGLM(Y,Z,s,t,b0,workCor,family,n=0,mdep=1)
       tempD=zeros(t,p);
       for i=1:t
           for k=1:p
-              tempD(i,k)=tempX(i,k)*exp(tempX(i,:)*b0);
+              if(strcmp(family, "Poisson"))
+                tempD(i,k)=tempX(i,k)*exp(tempX(i,:)*b0);
+              elseif(strcmp(family, "Binomial"))
+                tempD(i,k)=tempX(i,k)*exp(tempX(i,:)*b0)./(1 + exp(tempX(i,:)*b0)).^2;
+              endif
           end
       end
       G{j}=tempD;

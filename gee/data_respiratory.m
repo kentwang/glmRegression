@@ -11,7 +11,7 @@ b_ols = inverse(Z'*Z)*Z'*Y;
 
 
 % do every case
-logit_unspecified = gee(Y, Z, s, t, workCor = "Unspecified", family = "Binomial", n = n);
+logit_unspecified = gee(Y, Z, s, t, workCor = "Unspecified", family = "Binomial", n = n, mdep = 1, epsilon = 10^-6, OLS = false);
 logit_exchangeable = gee(Y, Z, s, t, workCor = "Exchangeable", family = "Binomial", n = n);
 logit_independent = gee(Y, Z, s, t, workCor = "Independent", family = "Binomial", n = n);
 logit_AR1= gee(Y, Z, s, t, workCor = "AR1", family = "Binomial", n = n);

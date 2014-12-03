@@ -1,9 +1,24 @@
 % This function is a wrapper of the GEE for both normal and GLM case
+% Todo: Convergence issue for logistic regression
 function result = gee(Y, Z, s, t, workCor = "Independent", family = "Normal", n = 0, mdep = 1, epsilon = 10^-6, OLS = true)
+  disp(OLS);
   if(OLS)
     b0 = inverse(Z'*Z)*Z'*Y;
   elseif(strcmp(family, "Poisson"))
     b0 = inverse(Z'*Z)*Z'*log(Y + 0.00001);
+  elseif(strcmp(family, "Binomial"))
+%    b0 = zeros(size(Z, 2), 1);
+%    b0(1) = 1;
+    p = sum(reshape(Y, t, s))' ./ n;
+    for i=1:length(p)
+      if(p(i) == 0)
+        p(i) = 0.00001;
+      elseif(p(i) == 1)
+        p(i) = 0.99999;
+      endif
+    endfor
+    eta = vec(repmat(log(p./(1-p)), 1, t)');
+    b0 = inverse(Z'*Z)*Z'*eta;
   else
     b0 = ones(size(Z, 2), 1);
   endif
