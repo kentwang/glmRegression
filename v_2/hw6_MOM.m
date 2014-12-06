@@ -1,4 +1,4 @@
-% model  page 546 without three-way interactions
+% model page 546 of DOE by D. Montgomery without three-way interactions
 
 data = csvread('ST615_WindTunnel_Design.csv');
 
@@ -136,3 +136,5 @@ disp("--------Variance Components---------")
 MSE_wp
 MSE_sp
 
+%%%%%%%%%%%%%%%%%%%%%
+% Do exactly the same thing for all four responses
