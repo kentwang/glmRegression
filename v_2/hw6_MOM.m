@@ -25,7 +25,7 @@ y2 = data(:, 12);
 y3 = data(:, 13);
 y4 = data(:, 14);
 
-y = y4; % can be replaced
+y = y1; % can be replaced
 
 [N, p] = size(data);
 i = j = k = l = m = 2;
@@ -35,7 +35,7 @@ i = j = k = l = m = 2;
 
 %% Sum of Squares 
 %grand average mu
-yddd_b = Const'*y/n;
+mu = Const'*y/n;
 
 % SS total
 SST = sum((y-mean(y)).^2);
@@ -109,22 +109,24 @@ MSE_sp = SS_sp/17;
 % check SS code
 % CF = (sum(y))^2/32
 % RepSS = (sum(y(1:16))^2 + (sum(y(17:32)))^2)/16-CF
-disp("--------WP A B AB---------")
-disp("Effect | F-stat | p-value")
+disp("--------Grand mean--------");
+disp(mu);
+disp("--------WP A B AB---------");
+disp("Effect | F-stat | p-value");
 F_wp = [SS_a/MSE_wp, SS_b/MSE_wp, SS_ab/MSE_wp];
 pvalue_wp = [1 - fcdf(SS_a/MSE_wp, 1, 1), 1 - fcdf(SS_b/MSE_wp, 1, 1), 1 - fcdf(SS_ab/MSE_wp, 1, 1)];
 effect_wp = [C_a/N/2, C_b/N/2, C_ab/N/2];
 disp([effect_wp', F_wp', pvalue_wp']);
 
-disp("--------SP C D CD---------")
-disp("Effect | F-stat | p-value")
+disp("--------SP C D CD---------");
+disp("Effect | F-stat | p-value");
 F_sp = [SS_c/MSE_sp, SS_d/MSE_sp, SS_cd/MSE_sp];
 pvalue_sp = [1 - fcdf(SS_c/MSE_sp, 1, 17), 1 - fcdf(SS_d/MSE_sp, 1, 17), 1 - fcdf(SS_cd/MSE_sp, 1, 17)];
 effect_sp = [C_c/N/2, C_d/N/2, C_cd/N/2];
 disp([effect_sp', F_sp', pvalue_sp']);
 
-disp("--------WP x SP AC AD BC BD---------")
-disp("Effect | F-stat | p-value")
+disp("--------WP x SP AC AD BC BD---------");
+disp("Effect | F-stat | p-value");
 F_wpsp = [SS_ac/MSE_sp, SS_ad/MSE_sp, SS_bc/MSE_sp, SS_bd/MSE_sp];
 pvalue_wpsp = [1 - fcdf(SS_ac/MSE_sp, 1, 17), 1 - fcdf(SS_ad/MSE_sp, 1, 17), 1 - fcdf(SS_bc/MSE_sp, 1, 17), 1 - fcdf(SS_bd/MSE_sp, 1, 17)];
 effect_wpsp = [C_ac/N/2, C_ad/N/2, C_bc/N/2, C_bd/N/2];
@@ -132,7 +134,7 @@ disp([effect_wpsp', F_wpsp', pvalue_wpsp']);
 
 % Model specification: A B AB C D AC AD
 % Variance components
-disp("--------Variance Components---------")
+disp("--------Variance Components---------");
 MSE_wp
 MSE_sp
 
