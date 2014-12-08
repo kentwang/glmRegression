@@ -44,8 +44,10 @@ V = {Ve, Va, Vb, Vab};
 beta_new = [1; zeros(p-1, 1)]; % fix effect coefficient
 Phi_new = [1; 2; 2; 2];
 Vy = Phi(1)*Ve + Phi(2)*Va + Phi(3)*Vb + Phi(4)*Vab;
+M = eye(N) - X*inv(X'*inv(Vy)*X)*X'*inv(Vy);
 
-beta_old = [1; ones(p-1, 1)];
+
+beta_old = [1; zeros(p-1, 1)];
 Phi_old = [1; 0; 0; 0];
 
 epsilon = 10^-6;
@@ -68,12 +70,12 @@ while(max(abs(beta_new-beta_old))/sum(abs(beta_old)) > epsilon || max(abs(Phi_ne
 
   for t = 1:T
     for m = 1:T
-      Omega(t, m) = trace(inv(Vy)*V{t}*inv(Vy)*V{m});
+      Omega(t, m) = trace(inv(Vy)*M*V{t}*M*inv(Vy)*V{m});
     endfor
   endfor
 
   for t = 1:T
-    Rho(t, 1) = (y-X*beta_old)'*inv(Vy)*V{t}*inv(Vy)*(y-X*beta_old); % Here is a problem with the iteration 
+    Rho(t, 1) = y'*M*inv(Vy)*V{t}*inv(Vy)*M*y;
   endfor
 
   % updating variance components
@@ -81,7 +83,10 @@ while(max(abs(beta_new-beta_old))/sum(abs(beta_old)) > epsilon || max(abs(Phi_ne
 
   % updating V
   Vy = Phi_new(1)*Ve + Phi_new(2)*Va + Phi_new(3)*Vb + Phi_new(4)*Vab;
-
+  
+  % updating M
+  M = eye(N) - X*inv(X'*inv(Vy)*X)*X'*inv(Vy);
+  
   % updating beta
   beta_new = inv(X'*inv(Vy)*X)*X'*inv(Vy)*y;
 endwhile
