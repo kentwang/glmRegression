@@ -35,7 +35,7 @@ i = j = k = l = m = 2;
 
 %% Sum of Squares 
 %grand average mu
-mu = Const'*y/n;
+mu = Const'*y/N;
 
 % SS total
 SST = sum((y-mean(y)).^2);
